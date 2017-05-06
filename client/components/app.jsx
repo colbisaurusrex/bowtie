@@ -1,10 +1,10 @@
 import React from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import Event from './Event.jsx';
+import Dashboard from './Dashboard.jsx';
 
 const App = () => (
   <MuiThemeProvider>
-    <Event />
+    <Dashboard />
   </MuiThemeProvider>
 );
 export default App;
