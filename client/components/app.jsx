@@ -1,8 +1,10 @@
 import React from 'react';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import Event from './Event.jsx';
 
 const App = () => (
-  <div style={{ textAlign: 'center' }}>
-    <h1>Wahoooooo! Time to code!</h1>
-  </div>
+  <MuiThemeProvider>
+    <Event />
+  </MuiThemeProvider>
 );
 export default App;
