@@ -1,39 +1,41 @@
 import React, { Component } from 'react';
-import { RaisedButton, Dialog } from 'material-ui';
-import SideBar from './Sidebar.jsx';
-
+import { Card, CardHeader, CardText, Divider } from 'material-ui';
+// TODO: Do i have to inject this in every file?
 const injectTapEventPlugin = require('react-tap-event-plugin');
 
 injectTapEventPlugin();
 
-export default class AlertDialog extends Component {
+export default class Event extends Component {
   constructor(props) {
     super(props);
+    // Local UI State
     this.state = {
       open: false,
-      title: 'This will be the event title',
-      description: 'This will be then even description',
     };
   }
 
   componentDidMount() {
+    console.log(this.props);
     console.log('send network request');
   }
-
-  closeDialog() { this.setState({ open: false }); }
 
   render() {
     return (
       <div>
-        <SideBar />
-        <RaisedButton label="See More"onClick={() => this.setState({ open: true })} />
-        <Dialog
-          open={this.state.open}
-          onRequestClose={this.handleRequestClose}
-        >
-          <RaisedButton label="Close" onClick={this.closeDialog.bind(this)} primary />
-        </Dialog>
+        <Card>
+          <CardHeader
+            title={this.props.title}
+            actAsExpander
+            showExpandableButton
+          />
+          <CardText expandable>
+            {this.props.description}
+          </CardText>
+        </Card>
+        <Divider />
       </div>
     );
   }
+  // TODO: should shouldComponentUpdate be in each event to improve performance
+  // TODO: add props validation
 }
