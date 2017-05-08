@@ -6,7 +6,7 @@ import axios from 'axios';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 
 injectTapEventPlugin();
-
+// TODO: set an interval to periodically fetch new events maybe? Need to clear the interval in a lifecylce method if so
 // TODO: To improve performance, add 'updatedid' to state and pass as props to Event component. Within event component, use in shouldComponentUpdate 
 export default class Dashboard extends Component {
   constructor(props) {
@@ -15,6 +15,7 @@ export default class Dashboard extends Component {
       events: [],
       fetching: true,
       processing: false,
+      filter: '',
       // TODO: Store userid in localStorage is inconsistent. Refactor to pass as props
       userid: window.localStorage.getItem('userid'),
     };
@@ -24,6 +25,7 @@ export default class Dashboard extends Component {
   componentDidMount() {
     axios.get('https://testproject-api.strv.com/events')
     .then(({ data }) => {
+      console.log(data)
       this.setState({ events: data });
       this.setState({ fetching: false });
     })
@@ -36,6 +38,7 @@ export default class Dashboard extends Component {
     };  
     axios.post('https://testproject-api.strv.com/events', details, { headers })
     .then((data) =>{
+      //TODO: update state
       console.log(data)
     })
     .catch(err => console.log(err))
@@ -51,6 +54,7 @@ export default class Dashboard extends Component {
     };   
     axios.post(`https://testproject-api.strv.com/events/${eventid}/attendees/me/`, {}, { headers })
     .then((data)=>{
+      //TODO: update state
       console.log(data)
     })
     .catch(err => console.log(err))
@@ -62,22 +66,22 @@ export default class Dashboard extends Component {
     };
     axios.delete(`https://testproject-api.strv.com/events/${eventid}/attendees/me/`, { headers })  
     .then((data)=>{
+      //TODO: update state. 
       console.log(data)
     })
     .catch(err => console.log(err))
   }
 
   filterHosting(){
-    const hosting = this.state.events.filter( (event) => {
-      return event.owner.id === this.state.userid; 
-    })
-    this.setState({events: hosting}) 
+    this.setState({filter: 'hosting'})
   }
 
   filterAttending(){
-     // this.setState({fetching: true}) 
+     this.setState({filter: 'attending'})
   }
-
+  displayAll = () => {
+    this.setState({filter: ''})
+  }
   // TODO: nest button to open sidebar and tabs menu in a containing app bar
   render() {
     return (
@@ -87,7 +91,7 @@ export default class Dashboard extends Component {
               createEvent={this.createEvent}
             />
             <Tabs>
-              <Tab label="All Events" onClick={this.fetchEvents}/>
+              <Tab label="All Events" onClick={this.displayAll}/>
               <Tab label="Attending" 
               onClick={this.filterAttending.bind(this)}
               />
@@ -98,7 +102,8 @@ export default class Dashboard extends Component {
             </Tabs>
             {/* TODO: I have slightly optomized by only passing the updateEvent function to events the user owns, however it be best to find a way to instantiate the funciton only once on a parent component*/}
             <div> 
-              <EventTable 
+              <EventTable
+               filter={this.state.filter} 
                events = {this.state.events}
                updateEvent= {this.updateEvent}
                attendEvent= {this.attendEvent}

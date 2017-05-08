@@ -30,7 +30,7 @@ export default class Event extends Component {
           <CardText expandable>
             {this.props.description}
             <CardText>
-              {this.props.hosting ?
+              {this.props.filter === 'hosting' ?
                 <div>
                   <RaisedButton label="Update" onClick={() => { this.toggleDialog(); }} />
                   <Dialog
@@ -45,7 +45,7 @@ export default class Event extends Component {
                 </div>
                 : null
               }
-              {this.props.attending ?
+              {this.props.filter === 'attending' ?
                 <RaisedButton label="Unattend" onClick={() => { this.props.unattendEvent(this.props.eventid); }} />
               :
                 <RaisedButton label="Attend" onClick={() => { this.props.attendEvent(this.props.eventid); }} /> }
@@ -59,14 +59,12 @@ export default class Event extends Component {
   }
   // TODO: should shouldComponentUpdate be in each event to improve performance
 }
-
+// TODO:validate filter
 Event.propTypes = {
   title: PropTypes.string,
   description: PropTypes.string,
-  hosting: PropTypes.bool,
   updateEvent: PropTypes.func,
   unattendEvent: PropTypes.func,
   attendEvent: PropTypes.func,
   eventid: PropTypes.string,
-  attending: PropTypes.bool,
 };
