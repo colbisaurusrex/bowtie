@@ -40,6 +40,7 @@ export default class EventTable extends Component {
     } else {
       displayedEvents = this.props.events;
     }
+    // TODO: determing if user is hosting and passing the updateEvent method can be done with the same prop
     return (
       <div>
         {this.state.fetching ? <CircularProgress size={80} thickness={5} />
@@ -48,12 +49,17 @@ export default class EventTable extends Component {
           { displayedEvents.map(event => (
             <Event
               key={event.id}
+              capacity={event.capacity}
+              totalGuests={event.attendees.length}
+              guests={event.attendees}
               eventid={event.id}
               title={event.title}
               filter={this.props.filter}
               description={event.description}
+              hosting={event.owner.id === this.state.userid}
               updateEvent={event.owner.id === this.state.userid ? this.props.updateEvent : null}
               attendEvent={this.props.attendEvent}
+              deleteEvent={this.props.deleteEvent}
               unattendEvent={this.props.unattendEvent}
             />
         ))}
@@ -69,6 +75,7 @@ EventTable.propTypes = {
   updateEvent: PropTypes.func.isRequired,
   unattendEvent: PropTypes.func.isRequired,
   attendEvent: PropTypes.func.isRequired,
+  deleteEvent: PropTypes.func.isRequired,
   fetching: PropTypes.bool.isRequired,
   // filter: PropTypes.string.isRequired,
 };
