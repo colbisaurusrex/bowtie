@@ -2,10 +2,7 @@ import React, { Component } from 'react';
 import { Card, CardHeader, CardText, Divider, CardActions, FlatButton, Dialog } from 'material-ui';
 import Form from './Form.jsx';
 import PropTypes from 'prop-types';
-// TODO: Do i have to inject this in every file?
-import injectTapEventPlugin from 'react-tap-event-plugin';
 
-injectTapEventPlugin();
 
 export default class Event extends Component {
   // TODO: Should this be a pure component?
@@ -14,9 +11,10 @@ export default class Event extends Component {
     // Local UI State
     this.state = {
       open: false,
+      // TODO: I am passing this hosting boolean based on the userid in Dashboard. This is temporary and hard to keep track of. Make state more uniform
+      hosting: this.props.hosting,
     };
   }
-
   toggleDialog() {
     this.setState({ open: !this.state.open });
   }
@@ -32,7 +30,10 @@ export default class Event extends Component {
           <CardText expandable>
             {this.props.description}
             <CardText>
-              <FlatButton label="Update" onClick={() => { this.toggleDialog(); }} />
+              {this.props.hosting ?
+                <FlatButton label="Update" onClick={() => { this.props.updateEvent(this.props.eventid); }} />
+                : null
+              }
             </CardText>
           </CardText>
         </Card>
@@ -49,7 +50,11 @@ export default class Event extends Component {
   }
   // TODO: should shouldComponentUpdate be in each event to improve performance
 }
+
 Event.propTypes = {
   title: PropTypes.string,
   description: PropTypes.string,
+  hosting: PropTypes.bool,
+  updateEvent: PropTypes.func,
+  eventid: PropTypes.string,
 };
