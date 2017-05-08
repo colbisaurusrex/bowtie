@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, CardHeader, CardText, Divider, CardActions, FlatButton, Dialog } from 'material-ui';
+import { Card, CardHeader, CardText, Divider, CardActions, FlatButton, Dialog, RaisedButton } from 'material-ui';
 import Form from './Form.jsx';
 import PropTypes from 'prop-types';
 
@@ -31,19 +31,28 @@ export default class Event extends Component {
             {this.props.description}
             <CardText>
               {this.props.hosting ?
-                <FlatButton label="Update" onClick={() => { this.props.updateEvent(this.props.eventid); }} />
+                <div>
+                  <RaisedButton label="Update" onClick={() => { this.toggleDialog(); }} />
+                  <Dialog
+                    open={this.state.open}
+                    onRequestClose={() => { this.toggleDialog(); }}
+                  >
+                    <FlatButton label="Close" onClick={() => { this.toggleDialog(); }} />
+                    <Form
+                      updateEvent={this.props.updateEvent}
+                    />
+                  </Dialog>
+                </div>
                 : null
               }
+              {this.props.attending ?
+                <RaisedButton label="Unattend" onClick={() => { this.props.unattendEvent(this.props.eventid); }} />
+              :
+                <RaisedButton label="Attend" onClick={() => { this.props.attendEvent(this.props.eventid); }} /> }
             </CardText>
           </CardText>
         </Card>
-        <Dialog
-          open={this.state.open}
-          onRequestClose={() => { this.toggleDialog(); }}
-        >
-          <FlatButton label="Close" onClick={() => { this.toggleDialog(); }} />
-          <Form />
-        </Dialog>
+
         <Divider />
       </div>
     );
@@ -56,5 +65,8 @@ Event.propTypes = {
   description: PropTypes.string,
   hosting: PropTypes.bool,
   updateEvent: PropTypes.func,
+  unattendEvent: PropTypes.func,
+  attendEvent: PropTypes.func,
   eventid: PropTypes.string,
+  attending: PropTypes.bool,
 };

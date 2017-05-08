@@ -3,7 +3,6 @@ import { TextField, FlatButton } from 'material-ui';
 import axios from 'axios';
 export default class Login extends Component {
   // TODO: add error to state and warn user of error if authentication failed
-  // TODO: web worker to check if authenticated? Or just reauthenticate
   constructor(props) {
     super(props);
     this.state = {
@@ -25,6 +24,8 @@ export default class Login extends Component {
     axios.post('https://testproject-api.strv.com/auth/native', { email, password })
     .then(({ data, headers }) => {
       window.localStorage.setItem('token', headers.authorization);
+      // TODO: temporary fix. user id should be in the state of a higher component
+      window.localStorage.setItem('userid', data.id);
       // TODO: push to dashboard
     })
     .catch(err => console.log(err));

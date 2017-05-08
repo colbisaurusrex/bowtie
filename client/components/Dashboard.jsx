@@ -1,50 +1,112 @@
 import React, { Component } from 'react';
 import { Tabs, Tab, CircularProgress } from 'material-ui';
 import SideBar from './Sidebar.jsx';
-import Event from './Event.jsx';
-import sampleData from '../sample.js';
+import EventTable from './EventTable.jsx';
+import axios from 'axios';
+import injectTapEventPlugin from 'react-tap-event-plugin';
 
+injectTapEventPlugin();
+
+// TODO: To improve performance, add 'updatedid' to state and pass as props to Event component. Within event component, use in shouldComponentUpdate 
 export default class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      events: sampleData,
+      events: [],
       fetching: true,
+      processing: false,
+      // TODO: Store userid in localStorage is inconsistent. Refactor to pass as props
+      userid: window.localStorage.getItem('userid'),
     };
   }
+
+  //TODO: Better error handling for network requests
   componentDidMount() {
-    // SIMULATION OF NETWORK REQUEST
-    setTimeout(() => {
+    axios.get('https://testproject-api.strv.com/events')
+    .then(({ data }) => {
+      this.setState({ events: data });
       this.setState({ fetching: false });
-    }, 2000);
-    // TODO: I think this is crux of optimization. Should I request all events at once and hydrate the state
-    // with the response? Or somehow pagiate and request them as the user interacts? How does this effect the attending
-    // and hosting tabs?
-    console.log('send network request for all events ');
+    })
+    .catch(err => console.log(err));
+  }
+  // USING ARROW FUNCTIONS TO BIND 'THIS' CONTEXT TO DASHBOARD. THIS IS EXPERIMENTAL SYNTAX.
+  createEvent = (details) => {
+    const headers = {
+      Authorization: window.localStorage.getItem('token'),
+    };  
+    axios.post('https://testproject-api.strv.com/events', details, { headers })
+    .then((data) =>{
+      console.log(data)
+    })
+    .catch(err => console.log(err))
+  }
+
+  updateEvent = () => {
+    console.log('update event :', this);
+  }
+
+  attendEvent = (eventid) =>{
+    const headers = {
+      Authorization: window.localStorage.getItem('token'),
+    };   
+    axios.post(`https://testproject-api.strv.com/events/${eventid}/attendees/me/`, {}, { headers })
+    .then((data)=>{
+      console.log(data)
+    })
+    .catch(err => console.log(err))
+  }
+
+  unattendEvent = (eventid) => {
+    const headers = {
+      Authorization: window.localStorage.getItem('token'),
+    };
+    axios.delete(`https://testproject-api.strv.com/events/${eventid}/attendees/me/`, { headers })  
+    .then((data)=>{
+      console.log(data)
+    })
+    .catch(err => console.log(err))
+  }
+
+  filterHosting(){
+    const hosting = this.state.events.filter( (event) => {
+      return event.owner.id === this.state.userid; 
+    })
+    this.setState({events: hosting}) 
+  }
+
+  filterAttending(){
+     // this.setState({fetching: true}) 
   }
 
   // TODO: nest button to open sidebar and tabs menu in a containing app bar
   render() {
     return (
       <div>
-        {this.state.fetching ?
-          <CircularProgress size={80} thickness={5} /> :
           <div>
-            <SideBar />
+            <SideBar
+              createEvent={this.createEvent}
+            />
             <Tabs>
-              <Tab label="All Events" />
-              <Tab label="Attending" />
-              <Tab label="Hosting" />
-            </Tabs>
-            {this.state.events.map(event => (
-          // TODO: Add keys to uniquely identify each event
-              <Event
-                title={event.title}
-                description={event.description}
+              <Tab label="All Events" onClick={this.fetchEvents}/>
+              <Tab label="Attending" 
+              onClick={this.filterAttending.bind(this)}
               />
-         ))}
+              <Tab 
+              label="Hosting" 
+              onClick={this.filterHosting.bind(this)}
+              />
+            </Tabs>
+            {/* TODO: I have slightly optomized by only passing the updateEvent function to events the user owns, however it be best to find a way to instantiate the funciton only once on a parent component*/}
+            <div> 
+              <EventTable 
+               events = {this.state.events}
+               updateEvent= {this.updateEvent}
+               attendEvent= {this.attendEvent}
+               unattendEvent={ this.unattendEvent} 
+               fetching={this.state.fetching}
+              />
+            </div>                     
           </div>
-        }
       </div>
     );
   }
