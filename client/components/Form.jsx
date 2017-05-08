@@ -35,7 +35,12 @@ export default class Form extends Component {
       startsAt: date,
       capacity: this.state.capacity,
     };
-    this.props.createEvent(details);
+    // NOTE: Done this way, this form remains reusable to either create a new event or update one the user is hosting
+    if (this.props.hosting) {
+      this.props.updateEvent(details, this.props.eventid);
+    } else {
+      this.props.createEvent(details);
+    }
   }
 
   handleInputChange(e, date) {
@@ -105,4 +110,5 @@ export default class Form extends Component {
 // TODO: validate create handler as props
 Form.propTypes = {
   createEvent: PropTypes.func,
+  updateEvent: PropTypes.func,
 };
