@@ -37,15 +37,24 @@ export default class Dashboard extends Component {
       Authorization: window.localStorage.getItem('token'),
     };  
     axios.post('https://testproject-api.strv.com/events', details, { headers })
-    .then((data) =>{
+    .then(({data}) =>{
       //TODO: update state
       console.log(data)
+      //NOTE: I am making the decision that the user will be attending whatever event they host
+      this.attendEvent(data.id)      
     })
     .catch(err => console.log(err))
   }
 
-  updateEvent = () => {
-    console.log('update event :', this);
+  updateEvent = (data, eventid) => {
+    const headers = {
+      Authorization: window.localStorage.getItem('token'),
+    };  
+    axios.patch(`https://testproject-api.strv.com/events/${eventid}`, data , { headers })
+    .then((data) => {
+      console.log(data)
+    })
+    .catch(err => console.log(err))
   }
 
   attendEvent = (eventid) =>{
@@ -67,6 +76,18 @@ export default class Dashboard extends Component {
     axios.delete(`https://testproject-api.strv.com/events/${eventid}/attendees/me/`, { headers })  
     .then((data)=>{
       //TODO: update state. 
+      console.log(data)
+    })
+    .catch(err => console.log(err))
+  }
+
+  deleteEvent = (eventid) => {
+    const headers = {
+      Authorization: window.localStorage.getItem('token'),
+    };
+    axios.delete(`https://testproject-api.strv.com/events/${eventid}`, { headers })
+    .then((data) => {
+      //TODO: update state
       console.log(data)
     })
     .catch(err => console.log(err))
@@ -108,6 +129,7 @@ export default class Dashboard extends Component {
                updateEvent= {this.updateEvent}
                attendEvent= {this.attendEvent}
                unattendEvent={ this.unattendEvent} 
+               deleteEvent={this.deleteEvent}
                fetching={this.state.fetching}
               />
             </div>                     
